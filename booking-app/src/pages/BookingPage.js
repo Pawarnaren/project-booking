@@ -1,0 +1,50 @@
+import React from 'react'
+import { useParams } from 'react-router-dom'
+import { useEffect } from 'react';
+import axios from 'axios';
+import { useState } from 'react';
+import AddressLink from '../AddressLink';
+import PlaceGallery from '../PlaceGallery';
+import BookingDates from '../BookingDates';
+
+const BookingPage = () => {
+
+    const { id } = useParams();
+    const [booking, setBooking] = useState(null);
+
+    useEffect(() => {
+        if (id) {
+            axios.get('/bookings').then(response => {
+                const foundBooking = response.data.find(({ _id }) => _id === id)
+                if (foundBooking) {
+                    setBooking(foundBooking)
+                }
+            })
+        }
+
+    }, [id])
+
+    if (!booking) {
+        return '';
+    }
+
+    return (
+        <div className="my-8">
+            <h1 className="text-3xl">{booking.place.title}</h1>
+            <AddressLink className="block my-2">{booking.place.address}</AddressLink>
+            <div className="flex items-center justify-between p-6 my-6 bg-gray-200 rounded-2xl">
+                <div>
+                    <h2 className="mb-4 text-2xl">Your booking information:</h2>
+                    <BookingDates booking={booking} className='mt-4 mb-2 text-gray-500' />
+                </div>
+                <div className="p-6 text-white bg-primary rounded-2xl">
+                    <div>Total price</div>
+                    <div className="text-3xl">${booking.price}</div>
+                </div>
+            </div>
+            <PlaceGallery place={booking.place} />
+        </div>
+    )
+}
+
+export default BookingPage
